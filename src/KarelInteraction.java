@@ -4,14 +4,22 @@ import java.util.Scanner;
 
 public class KarelInteraction {
 
-    private KarelMap map;
     private KarelRobot rob;
     private static final String QUIT_PROMPT = "You can use 'Q' to quit the game";
     private static final String GOODBYE = "See you next time.";
 
-    public KarelInteraction(int width, int height) {
-        map = new KarelMap(width, height);
-        rob = new KarelRobot(map, new int[]{2, 0}, KarelRobot.Direction.RIGHT);
+    public KarelInteraction(int stage) {
+        WorldDirector director = new WorldDirector();
+        WorldBuilder builder = new WorldBuilder();
+        switch (stage) {
+            case 1:
+                director.stage1(builder);
+                break;
+            case 2:
+                director.stage2(builder);
+                break;
+        }
+        rob = builder.buildRobot();
     }
 
     /**
@@ -19,11 +27,17 @@ public class KarelInteraction {
      */
     private void drawSite(int type) {
         String icon = "";
-        KarelMap.Site siteType = KarelMap.Site.int2Site(type);
-        KarelRobot.Direction currentDir = KarelRobot.Direction.int2Dir(rob.ori);
+        KarelMap.Site siteType = KarelMap.Site.intToSite(type);
+        KarelRobot.Direction currentDir = KarelRobot.Direction.intToDir(rob.ori);
         switch (siteType) {
             case GROUND:
                 icon = "·";
+                break;
+            case WALL:
+                icon = "■";
+                break;
+            case STONE:
+                icon = "●";
                 break;
             case KAREL:
                 switch (currentDir) {
@@ -50,10 +64,10 @@ public class KarelInteraction {
      * draw a specified line of the map
      */
     private void drawRow(int row) {
-        int first = row * map.width;
-        int last = (row + 1) * map.width - 1;
+        int first = row * rob.map.width;
+        int last = (row + 1) * rob.map.width - 1;
         for (int i = first; i <= last; i++) {
-            drawSite(map.getType(i));
+            drawSite(rob.map.getType(i));
         }
         System.out.print("\n");
     }
@@ -62,7 +76,7 @@ public class KarelInteraction {
      * draw the whole map out, and under the map the quit prompt
      */
     public void drawMap() {
-        for (int i = 0; i < map.height; i++) {
+        for (int i = 0; i < rob.map.height; i++) {
             drawRow(i);
         }
         System.out.println(QUIT_PROMPT);
@@ -146,16 +160,16 @@ public class KarelInteraction {
                 try {
                     switch (input) {
                         case "STAGE1":
-                            game = new KarelInteraction(5, 5);
+                            game = new KarelInteraction(1);
                             break;
                         case "STAGE2":
-                            game = new KarelInteraction(5, 5);
+                            game = new KarelInteraction(2);
                             break;
                         case "STAGE3":
-                            game = new KarelInteraction(5, 5);
+
                             break;
                         case "NEW MAP":
-                            game = new KarelInteraction(5, 5);
+
                             break;
                         default:
                             System.out.println("Choose a stage or create a new map bitte");

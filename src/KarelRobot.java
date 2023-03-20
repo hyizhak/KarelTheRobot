@@ -9,7 +9,7 @@ public class KarelRobot {
     public enum Direction {
         RIGHT, UP, LEFT, DOWN;
 
-        public static Direction int2Dir(int i) {
+        public static Direction intToDir(int i) {
             return Direction.values()[i];
         }
     }
@@ -22,14 +22,14 @@ public class KarelRobot {
         this.map = map;
         this.loc = loc;
         this.ori = ori.ordinal();
-        map.setSite(loc, KarelMap.Site.KAREL);
+        this.map.setSite(this.loc, KarelMap.Site.KAREL);
     }
 
     /**
      * move the robot one step forward
      */
     public void move() {
-        Direction currentDir = Direction.int2Dir(ori);
+        Direction currentDir = Direction.intToDir(ori);
 
         if ((currentDir == Direction.RIGHT && loc[1] == map.width - 1) ||
                 (currentDir == Direction.UP && loc[0] == 0) ||
@@ -55,6 +55,12 @@ public class KarelRobot {
         map.setSite(loc, KarelMap.Site.KAREL);
     }
 
+    public void move(int n) {
+        for (int i = 0; i < n; i++) {
+            move();
+        }
+    }
+
     /**
      * turn the robot towards the left
      */
@@ -67,12 +73,13 @@ public class KarelRobot {
 
     //test
     public static void main(String[] args) {
-        KarelMap m = new KarelMap(10, 5);
+        KarelMap m = new KarelMap(10, 5, null, null);
         KarelRobot r = new KarelRobot(m, new int[]{2, 0}, Direction.RIGHT);
         System.out.println(r.ori);
         System.out.println(Arrays.toString(m.map));
         r.move();
         r.turnLeft();
         System.out.println(Arrays.toString(m.map));
+        System.out.println(r.ori);
     }
 }

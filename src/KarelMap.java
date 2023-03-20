@@ -1,6 +1,5 @@
 import java.util.Arrays;
 
-//TODO: maybe try abstract factory later
 public class KarelMap {
 
     public int[] map;
@@ -8,7 +7,10 @@ public class KarelMap {
     public final int height;
 
     public enum Site {
-        GROUND(0), KAREL(1);
+        GROUND(0),
+        KAREL(1),
+        WALL(2),
+        STONE(3);
 
         private final int typeValue;
 
@@ -16,7 +18,7 @@ public class KarelMap {
             this.typeValue = typeValue;
         }
 
-        public static Site int2Site(int i) {
+        public static Site intToSite(int i) {
             return Site.values()[i];
         }
     }
@@ -25,10 +27,12 @@ public class KarelMap {
     /**
      * create an array to represent the map
      */
-    public KarelMap(int width, int height) {
+    public KarelMap(int width, int height, int[][] wall, int[][] stone) {
         this.width = width;
         this.height = height;
         map = new int[width * height];
+        if (wall != null) setSites(wall, Site.WALL);
+        if (stone != null) setSites(stone, Site.STONE);
     }
 
     /**
@@ -53,9 +57,15 @@ public class KarelMap {
         map[i] = type.typeValue;
     }
 
+    public void setSites(int[][] locs, Site type) {
+        for (int[] loc : locs) {
+            setSite(loc, type);
+        }
+    }
+
     //test
     public static void main(String[] args) {
-        KarelMap m = new KarelMap(10, 5);
+        KarelMap m = new KarelMap(10, 5, null, null);
         System.out.println(m.width);
         int[] loc = new int[]{2, 0};
         m.setSite(loc, Site.KAREL);
