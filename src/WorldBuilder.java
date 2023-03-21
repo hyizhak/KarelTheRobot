@@ -1,6 +1,6 @@
 public class WorldBuilder {
     private int width, height;
-    private int[][] wall, stone;
+    private int[][] wall, rock;
     private int[] robotLoc;
     private KarelRobot.Direction robotDir;
 
@@ -16,12 +16,12 @@ public class WorldBuilder {
         this.wall = wall;
     }
 
-    public void setStone(int[][] stone) {
-        this.stone = stone;
+    public void setRock(int[][] rock) {
+        this.rock = rock;
     }
 
     public KarelMap buildMap() {
-        return new KarelMap(width, height, wall, stone);
+        return new KarelMap(width, height, wall, rock);
     }
 
     public void setRobotLoc(int[] loc) {

@@ -36,7 +36,7 @@ public class KarelInteraction {
             case WALL:
                 icon = "■";
                 break;
-            case STONE:
+            case ROCK:
                 icon = "●";
                 break;
             case KAREL:
@@ -64,10 +64,9 @@ public class KarelInteraction {
      * draw a specified line of the map
      */
     private void drawRow(int row) {
-        int first = row * rob.map.width;
-        int last = (row + 1) * rob.map.width - 1;
-        for (int i = first; i <= last; i++) {
-            drawSite(rob.map.getType(i));
+        for (int i = 0; i < rob.map.width; i++) {
+            int[] site = new int[]{row, i};
+            drawSite(rob.map.getType(site));
         }
         System.out.print("\n");
     }
@@ -112,7 +111,7 @@ public class KarelInteraction {
     private void gameLoop() {
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
 
-        while (true) {
+        while (rob.map.numMapRock() != 0) {
             drawMap();
             String input = scanner.nextLine();
 
@@ -127,17 +126,27 @@ public class KarelInteraction {
                 System.out.println("Error: " + e.getMessage());
             }
         }
+        System.out.println("There is no rock on the map. You win!");
     }
 
     /**
      * map the input to the robot method with the same name
      */
-    private void invokeRobotMethod(String methodName) {
+    private void invokeRobotMethod(String input) {
+        InputEval evaledInput = new InputEval(input);
+
         try {
-            Method method = KarelRobot.class.getDeclaredMethod(methodName.replace("()", ""));
-            method.invoke(rob);
+            String argString = evaledInput.getArgString();
+            if (argString == null) {
+                Method method = KarelRobot.class.getDeclaredMethod(evaledInput.getMethod());
+                method.invoke(rob);
+            } else {
+                Method method = KarelRobot.class.getDeclaredMethod(
+                        evaledInput.getMethod(), evaledInput.getArgType());
+                method.invoke(rob, evaledInput.getArgValue());
+            }
         } catch (NoSuchMethodException e) {
-            System.out.println("Error: The robot cannot '" + methodName + "'");
+            System.out.println("Error: Not supported the command '" + evaledInput.getMethod() + "'");
         } catch (Exception e) {
             Throwable cause = e.getCause();
             System.out.println("Error: " + cause.getMessage());
@@ -166,10 +175,8 @@ public class KarelInteraction {
                             game = new KarelInteraction(2);
                             break;
                         case "STAGE3":
-
-                            break;
                         case "NEW MAP":
-
+                            System.out.println("Not implemented yet. Choose another stage please.");
                             break;
                         default:
                             System.out.println("Choose a stage or create a new map bitte");

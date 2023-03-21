@@ -4,6 +4,7 @@ public class KarelRobot {
 
     public int[] loc;
     public int ori;
+    public int bagRock = 0;
     public KarelMap map;
 
     public enum Direction {
@@ -26,35 +27,48 @@ public class KarelRobot {
     }
 
     /**
+     * get the next site in front of the robot
+     */
+    private int[] nextSite() {
+        Direction currentDir = Direction.intToDir(ori);
+        int[] nextLoc = new int[]{loc[0], loc[1]};
+        switch (currentDir) {
+            case RIGHT:
+                nextLoc[1]++;
+                break;
+            case UP:
+                nextLoc[0]--;
+                break;
+            case LEFT:
+                nextLoc[1]--;
+                break;
+            case DOWN:
+                nextLoc[0]++;
+                break;
+        }
+        return nextLoc;
+    }
+
+    /**
      * move the robot one step forward
      */
     public void move() {
-        Direction currentDir = Direction.intToDir(ori);
+        int[] nextLoc = nextSite();
 
-        if ((currentDir == Direction.RIGHT && loc[1] == map.width - 1) ||
-                (currentDir == Direction.UP && loc[0] == 0) ||
-                (currentDir == Direction.LEFT && loc[1] == 0) ||
-                (currentDir == Direction.DOWN && loc[0] == map.height - 1)) {
+        if (nextLoc[0] == map.height || nextLoc[1] == map.width || nextLoc[0] == -1 || nextLoc[1] == -1) {
             throw new IndexOutOfBoundsException("The robot cannot leave the map!");
         }
-        map.setSite(loc, KarelMap.Site.GROUND);
-        switch (currentDir) {
-            case RIGHT:
-                loc[1]++;
-                break;
-            case UP:
-                loc[0]--;
-                break;
-            case LEFT:
-                loc[1]--;
-                break;
-            case DOWN:
-                loc[0]++;
-                break;
+        if (!map.isPassable(nextLoc)) {
+            throw new IllegalArgumentException("The robot cannot move to a wall or a stone!");
         }
+        map.setSite(loc, KarelMap.Site.GROUND);
+        loc = nextLoc;
         map.setSite(loc, KarelMap.Site.KAREL);
     }
 
+    /**
+     * move the robot n steps forward
+     */
     public void move(int n) {
         for (int i = 0; i < n; i++) {
             move();
@@ -71,15 +85,49 @@ public class KarelRobot {
         }
     }
 
+    /**
+     * pick the stone in front of the robot
+     */
+    public void pickRock() {
+        int[] nextLoc = nextSite();
+        if (map.getType(nextLoc) == KarelMap.Site.ROCK.typeValue) {
+            System.out.println("You have got a rock!");
+            System.out.println("Now you have " + bagRock + " in your bag.");
+            bagRock++;
+            map.rockPicked(nextLoc);
+        } else {
+            System.out.println("There is no rock ahead! Please enter again.");
+        }
+    }
+
+    public void showInformation() {
+        String num;
+        if (bagRock == 0) {
+            num = "no";
+        } else {
+            num = Integer.toString(bagRock);
+        }
+        System.out.println("There is " + map.numMapRock() + " rock(s) on the map that you need to collect.");
+        System.out.println("You have " + num + " rock(s) in your bag.");
+        System.out.println("You are " + map.nearRockStep(loc) + " step(s) away from the nearest rock.");
+    }
+
     //test
     public static void main(String[] args) {
         KarelMap m = new KarelMap(10, 5, null, null);
         KarelRobot r = new KarelRobot(m, new int[]{2, 0}, Direction.RIGHT);
         System.out.println(r.ori);
-        System.out.println(Arrays.toString(m.map));
+        System.out.println(Arrays.toString(r.loc));
+        System.out.println(Arrays.toString(r.nextSite()));
+        //System.out.println(Arrays.toString(m.map));
         r.move();
+        System.out.println(Arrays.toString(r.loc));
         r.turnLeft();
-        System.out.println(Arrays.toString(m.map));
+        //System.out.println(Arrays.toString(m.map));
         System.out.println(r.ori);
+        System.out.println(Arrays.toString(r.loc));
+        System.out.println(Arrays.toString(r.nextSite()));
+        r.move();
+        System.out.println(Arrays.toString(r.loc));
     }
 }
