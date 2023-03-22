@@ -17,7 +17,7 @@ public class KarelRobot {
 
 
     /**
-     * create a karel robot in a certain map
+     * construct a karel robot in a certain map
      */
     public KarelRobot(KarelMap map, int[] loc, Direction ori) {
         this.map = map;
@@ -28,6 +28,8 @@ public class KarelRobot {
 
     /**
      * get the next site in front of the robot
+     *
+     * @return the coordinate of the next site
      */
     private int[] nextSite() {
         Direction currentDir = Direction.intToDir(ori);
@@ -68,6 +70,8 @@ public class KarelRobot {
 
     /**
      * move the robot n steps forward
+     *
+     * @param n the number of steps
      */
     public void move(int n) {
         for (int i = 0; i < n; i++) {
@@ -100,6 +104,10 @@ public class KarelRobot {
         }
     }
 
+    /**
+     * print the information of the Karel world, including the number of rocks on the map,
+     * the number of rocks in the bag, and the distance to the nearest rock
+     */
     public void showInformation() {
         String num;
         if (bagRock == 0) {

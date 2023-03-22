@@ -1,8 +1,13 @@
-public class InputEval {
+public class SingleEval {
 
     private String methodName, argString, argType, argValue;
 
-    public InputEval(String input) {
+    /**
+     * parse the input string to get the method name, argument type and value
+     *
+     * @param input the input string
+     */
+    public SingleEval(String input) {
         String[] parts = input.split("\\(");
         methodName = parts[0];
         //parts.lenth > 1 means there are arguments and
@@ -15,14 +20,29 @@ public class InputEval {
         }
     }
 
+    /**
+     * get the method name
+     *
+     * @return method name
+     */
     public String getMethod() {
         return methodName;
     }
 
+    /**
+     * get the argument string
+     *
+     * @return argument string
+     */
     public String getArgString() {
         return argString;
     }
 
+    /**
+     * get the class of the argument
+     *
+     * @return primitive class and other defined class from the name
+     */
     public Class<?> getArgType() {
         Class<?> argClass = null;
         switch (argType) {
@@ -44,10 +64,22 @@ public class InputEval {
         }
     }
 
+    /**
+     * get the value of the argument
+     *
+     * @return the parsed value of the argument
+     */
     public Object getArgValue() {
         return parseArgValue(argType, argValue);
     }
 
+    /**
+     * parse the argument value to the corresponding type
+     *
+     * @param argType  the String of the argument type
+     * @param argValue the value of the argument
+     * @return the parsed value of the argument
+     */
     private Object parseArgValue(String argType, String argValue) {
         switch (argType) {
             case "int":
@@ -64,10 +96,10 @@ public class InputEval {
     }
 
     public static void main(String[] args) throws ClassNotFoundException {
-        String test = "move(int 10)";
-        InputEval evaledInput = new InputEval(test);
+        String test = "move(KarelMap 10)";
+        SingleEval evaledInput = new SingleEval(test);
         System.out.println(evaledInput.getMethod());
-        System.out.println(evaledInput.argString);
+        System.out.println(evaledInput.getArgType());
         System.out.println(evaledInput.getArgValue());
     }
 }

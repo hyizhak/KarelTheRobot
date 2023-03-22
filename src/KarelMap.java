@@ -26,7 +26,7 @@ public class KarelMap {
 
 
     /**
-     * create an array to represent the map
+     * construct an array to represent the map
      */
     public KarelMap(int width, int height, int[][] wall, int[][] rock) {
         this.width = width;
@@ -38,7 +38,9 @@ public class KarelMap {
     }
 
     /**
-     * get the index from a set of row and col, both starting from 0
+     * get the index from a set of row and col, both starting from 0, helper function
+     *
+     * @return the index of the site in the map
      */
     public int index(int[] loc) {
         return loc[0] * width + loc[1];
@@ -46,6 +48,8 @@ public class KarelMap {
 
     /**
      * get the site type
+     *
+     * @return the type of the site in int
      */
     public int getType(int[] loc) {
         int index = index(loc);
@@ -54,6 +58,9 @@ public class KarelMap {
 
     /**
      * set the specified site to a certain type
+     *
+     * @param loc  the coordinate of the site
+     * @param type the type of the site
      */
     public void setSite(int[] loc, Site type) {
         int i = index(loc);
@@ -62,6 +69,9 @@ public class KarelMap {
 
     /**
      * set the specified sites to a certain type
+     *
+     * @param locs the coordinates of the sites
+     * @param type the type of the sites
      */
     public void setSites(int[][] locs, Site type) {
         for (int[] loc : locs) {
@@ -71,12 +81,20 @@ public class KarelMap {
 
     /**
      * check if the site is passable
+     *
+     * @param loc the coordinate of the site
+     * @return true if the site is passable
      */
     public boolean isPassable(int[] loc) {
         int i = index(loc);
         return map[i] == Site.GROUND.typeValue;
     }
 
+    /**
+     * change the states when a rock is picked
+     *
+     * @param loc the coordinate of the rock picked
+     */
     public void rockPicked(int[] loc) {
         setSite(loc, Site.GROUND);
         int[][] newRock = new int[rock.length - 1][2];
@@ -91,6 +109,8 @@ public class KarelMap {
 
     /**
      * get the number of rocks in the map
+     *
+     * @return the number of rocks in the map
      */
     public int numMapRock() {
         return rock.length;
@@ -98,6 +118,9 @@ public class KarelMap {
 
     /**
      * get the steps to the nearest rock
+     *
+     * @param loc the coordinate of the robot
+     * @return the steps to the nearest rock
      */
     public int nearRockStep(int[] loc) {
         int[] distance = new int[numMapRock()];

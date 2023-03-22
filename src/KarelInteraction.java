@@ -8,6 +8,11 @@ public class KarelInteraction {
     private static final String QUIT_PROMPT = "You can use 'Q' to quit the game";
     private static final String GOODBYE = "See you next time.";
 
+    /**
+     * construct the game
+     *
+     * @param stage the user's choice of stage
+     */
     public KarelInteraction(int stage) {
         WorldDirector director = new WorldDirector();
         WorldBuilder builder = new WorldBuilder();
@@ -24,6 +29,8 @@ public class KarelInteraction {
 
     /**
      * draw a corresponding site
+     *
+     * @param type the type of the site to be drawn
      */
     private void drawSite(int type) {
         String icon = "";
@@ -62,6 +69,8 @@ public class KarelInteraction {
 
     /**
      * draw a specified line of the map
+     *
+     * @param row the row number of the map to be drawn
      */
     private void drawRow(int row) {
         for (int i = 0; i < rob.map.width; i++) {
@@ -83,6 +92,9 @@ public class KarelInteraction {
 
     /**
      * an auxiliary centering method to format the output
+     *
+     * @param str the string to be centered
+     * @param len the length of the string after centering
      */
     private static String center(String str, int len) {
         int leftSpace = (len - str.length()) / 2;
@@ -106,7 +118,7 @@ public class KarelInteraction {
     }
 
     /**
-     * waiting for prompt for the robot
+     * waiting for prompt for the robot, the main game loop
      */
     private void gameLoop() {
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
@@ -131,9 +143,11 @@ public class KarelInteraction {
 
     /**
      * map the input to the robot method with the same name
+     *
+     * @param input the input string
      */
     private void invokeRobotMethod(String input) {
-        InputEval evaledInput = new InputEval(input);
+        SingleEval evaledInput = new SingleEval(input);
 
         try {
             String argString = evaledInput.getArgString();
@@ -156,7 +170,7 @@ public class KarelInteraction {
     public static void main(String[] args) {
         try (Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8)) {
             KarelInteraction game = null;
-
+            //opening stage
             while (true) {
                 drawOp();
                 String input = scanner.nextLine();
