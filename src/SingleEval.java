@@ -1,6 +1,7 @@
 public class SingleEval {
 
-    private String methodName, argString, argType, argValue;
+    private String methodName, argValue;
+    private Class<?> argType;
 
     /**
      * parse the input string to get the method name, argument type and value
@@ -13,10 +14,10 @@ public class SingleEval {
         //parts.lenth > 1 means there are arguments and
         //parts[1].length() > 1 means the argument is not the ")" at the end
         if (parts.length > 1 && parts[1].length() > 1) {
-            argString = parts[1].replace(")", "");
-            String[] argParts = argString.split(" ");
-            argType = argParts[0];
-            argValue = argParts[1];
+            argValue = parts[1].replace(")", "");
+//            String[] argParts = argString.split(" ");
+//            argType = argParts[0];
+//            argValue = argParts[1];
         }
     }
 
@@ -29,23 +30,36 @@ public class SingleEval {
         return methodName;
     }
 
-    /**
-     * get the argument string
-     *
-     * @return argument string
-     */
-    public String getArgString() {
-        return argString;
+    public boolean hasArg() {
+        return argValue != null;
     }
 
     /**
-     * get the class of the argument
+     * get the class of the argument from the input
+     *
+     * @return primitive classes
+     */
+    public Class<?> getArgType() {
+        if (argValue.matches("\\d+")) {
+            argType = int.class;
+        } else if (argValue.matches("\\d+\\.\\d+")) {
+            argType = double.class;
+        } else if (argValue.equalsIgnoreCase("true") || argValue.equalsIgnoreCase("false")) {
+            argType = boolean.class;
+        } else {
+            argType = String.class;
+        }
+        return argType;
+    }
+
+    /**
+     * get the class of the argument from the name
      *
      * @return primitive class and other defined class from the name
      */
-    public Class<?> getArgType() {
+    public Class<?> getArgType(String type) {
         Class<?> argClass = null;
-        switch (argType) {
+        switch (type) {
             case "int":
                 return int.class;
             case "double":
@@ -56,7 +70,7 @@ public class SingleEval {
                 return String.class;
             default:
                 try {
-                    argClass = Class.forName(argType);
+                    argClass = Class.forName(type);
                 } catch (ClassNotFoundException e) {
                     System.out.println("Error: Invalid arg class");
                 }
@@ -80,23 +94,21 @@ public class SingleEval {
      * @param argValue the value of the argument
      * @return the parsed value of the argument
      */
-    private Object parseArgValue(String argType, String argValue) {
-        switch (argType) {
-            case "int":
-                return Integer.parseInt(argValue);
-            case "double":
-                return Double.parseDouble(argValue);
-            case "boolean":
-                return Boolean.parseBoolean(argValue);
-            case "String":
-                return argValue;
-            default:
-                return null;
+    private Object parseArgValue(Class<?> argType, String argValue) {
+        if (argType == int.class) {
+            return Integer.parseInt(argValue);
+        } else if (argType == double.class) {
+            return Double.parseDouble(argValue);
+        } else if (argType == boolean.class) {
+            return Boolean.parseBoolean(argValue);
+        } else if (argType == String.class) {
+            return argValue;
         }
+        return null;
     }
 
     public static void main(String[] args) throws ClassNotFoundException {
-        String test = "move(KarelMap 10)";
+        String test = "move(10)";
         SingleEval evaledInput = new SingleEval(test);
         System.out.println(evaledInput.getMethod());
         System.out.println(evaledInput.getArgType());

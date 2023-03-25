@@ -150,8 +150,7 @@ public class KarelInteraction {
         SingleEval evaledInput = new SingleEval(input);
 
         try {
-            String argString = evaledInput.getArgString();
-            if (argString == null) {
+            if (!evaledInput.hasArg()) {
                 Method method = KarelRobot.class.getDeclaredMethod(evaledInput.getMethod());
                 method.invoke(rob);
             } else {
