@@ -57,11 +57,8 @@ public class KarelRobot {
     public void move() {
         int[] nextLoc = nextSite();
 
-        if (nextLoc[0] == map.height || nextLoc[1] == map.width || nextLoc[0] == -1 || nextLoc[1] == -1) {
-            throw new IndexOutOfBoundsException("The robot cannot leave the map!");
-        }
         if (!map.isPassable(nextLoc)) {
-            throw new IllegalArgumentException("The robot cannot move to a wall or a stone!");
+            throw new IllegalArgumentException("The robot cannot move towards this direction anymore!");
         }
         map.setSite(loc, KarelMap.Site.GROUND);
         loc = nextLoc;
@@ -95,9 +92,9 @@ public class KarelRobot {
     public void pickRock() {
         int[] nextLoc = nextSite();
         if (map.getType(nextLoc) == KarelMap.Site.ROCK.typeValue) {
+            bagRock++;
             System.out.println("You have got a rock!");
             System.out.println("Now you have " + bagRock + " in your bag.");
-            bagRock++;
             map.rockPicked(nextLoc);
         } else {
             System.out.println("There is no rock ahead! Please enter again.");

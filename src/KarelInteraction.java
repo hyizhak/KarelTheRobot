@@ -105,7 +105,7 @@ public class KarelInteraction {
     /**
      * draw the opening page
      */
-    private static void drawOp() {
+    public static void drawOp() {
         String outerBox = "—".repeat(80);
         String info = "|" + center("Created by: Han, Yizhan", 78) + "|";
         String welcome = "|" + center("Welcome to Karel's World!", 78) + "|";
@@ -120,7 +120,7 @@ public class KarelInteraction {
     /**
      * waiting for prompt for the robot, the main game loop
      */
-    private void gameLoop() {
+    public void gameLoop() {
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
 
         while (rob.map.numMapRock() != 0) {
@@ -138,7 +138,7 @@ public class KarelInteraction {
                 System.out.println("Error: " + e.getMessage());
             }
         }
-        System.out.println("There is no rock on the map. You win!");
+        if (rob.map.numMapRock() == 0) System.out.println("There is no rock on the map. You win!");
     }
 
     /**
@@ -159,7 +159,7 @@ public class KarelInteraction {
                 method.invoke(rob, evaledInput.getArgValue());
             }
         } catch (NoSuchMethodException e) {
-            System.out.println("Error: Not supported the command '" + evaledInput.getMethod() + "'");
+            System.out.println("Error: Not supported the command '" + input + "'");
         } catch (Exception e) {
             Throwable cause = e.getCause();
             System.out.println("Error: " + cause.getMessage());

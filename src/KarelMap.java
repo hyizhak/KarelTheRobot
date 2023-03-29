@@ -86,6 +86,9 @@ public class KarelMap {
      * @return true if the site is passable
      */
     public boolean isPassable(int[] loc) {
+        if (loc[0] >= height || loc[1] >= width || loc[0] <= -1 || loc[1] <= -1) {
+            return false;
+        }
         int i = index(loc);
         return map[i] == Site.GROUND.typeValue;
     }
