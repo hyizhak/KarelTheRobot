@@ -5,6 +5,7 @@ public class KarelRobot {
     public int[] loc;
     public int ori;
     public int bagRock = 0;
+    public boolean dead = false;
     public KarelMap map;
 
     public enum Direction {
@@ -60,9 +61,14 @@ public class KarelRobot {
         if (!map.isPassable(nextLoc)) {
             throw new IllegalArgumentException("The robot cannot move towards this direction anymore!");
         }
-        map.setSite(loc, KarelMap.Site.GROUND);
-        loc = nextLoc;
-        map.setSite(loc, KarelMap.Site.KAREL);
+        if (map.getType(nextLoc) == KarelMap.Site.TRAP.typeValue) {
+            map.setSite(loc, KarelMap.Site.GROUND);
+            dead = true;
+        } else {
+            map.setSite(loc, KarelMap.Site.GROUND);
+            loc = nextLoc;
+            map.setSite(loc, KarelMap.Site.KAREL);
+        }
     }
 
     /**
@@ -86,6 +92,12 @@ public class KarelRobot {
         }
     }
 
+    public void turnRight() {
+        turnLeft();
+        turnLeft();
+        turnLeft();
+    }
+
     /**
      * pick the stone in front of the robot
      */
@@ -99,6 +111,43 @@ public class KarelRobot {
         } else {
             System.out.println("There is no rock ahead! Please enter again.");
         }
+    }
+
+    /**
+     * put the stone in front of the robot
+     */
+    public void putRock() {
+        int[] nextLoc = nextSite();
+        if (map.getType(nextLoc) == KarelMap.Site.TRAP.typeValue) {
+            if (bagRock > 0) {
+                bagRock--;
+                System.out.println("You have put down a rock!");
+                System.out.println("Now you have " + bagRock + " left.");
+                map.rockPut(nextLoc);
+            } else {
+                System.out.println("You have no rock in your bag! Please enter again.");
+            }
+        } else {
+            System.out.println("You cannot put a rock here! Please enter again.");
+        }
+    }
+
+    /**
+     * check if the robot has no rock in the bag
+     *
+     * @return true if the robot has no rock in the bag
+     */
+    public boolean noRockInBag() {
+        boolean flag = bagRock == 0;
+        System.out.println(flag);
+        return flag;
+    }
+
+    public boolean noRockPresent() {
+        int[] nextLoc = nextSite();
+        boolean flag = map.getType(nextLoc) != KarelMap.Site.ROCK.typeValue;
+        System.out.println(flag);
+        return flag;
     }
 
     /**
@@ -119,7 +168,7 @@ public class KarelRobot {
 
     //test
     public static void main(String[] args) {
-        KarelMap m = new KarelMap(10, 5, null, null);
+        KarelMap m = new KarelMap(10, 5, null, null, null);
         KarelRobot r = new KarelRobot(m, new int[]{2, 0}, Direction.RIGHT);
         System.out.println(r.ori);
         System.out.println(Arrays.toString(r.loc));

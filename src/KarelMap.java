@@ -11,7 +11,9 @@ public class KarelMap {
         GROUND(0),
         KAREL(1),
         WALL(2),
-        ROCK(3);
+        ROCK(3),
+        TRAP(4),
+        TRAPLEVELED(5);
 
         public final int typeValue;
 
@@ -28,13 +30,14 @@ public class KarelMap {
     /**
      * construct an array to represent the map
      */
-    public KarelMap(int width, int height, int[][] wall, int[][] rock) {
+    public KarelMap(int width, int height, int[][] wall, int[][] rock, int[][] trap) {
         this.width = width;
         this.height = height;
         this.rock = rock;
         map = new int[width * height];
         if (wall != null) setSites(wall, Site.WALL);
         if (rock != null) setSites(rock, Site.ROCK);
+        if (trap != null) setSites(trap, Site.TRAP);
     }
 
     /**
@@ -90,7 +93,9 @@ public class KarelMap {
             return false;
         }
         int i = index(loc);
-        return map[i] == Site.GROUND.typeValue;
+        return map[i] == Site.GROUND.typeValue ||
+                map[i] == Site.TRAPLEVELED.typeValue ||
+                map[i] == Site.TRAP.typeValue;
     }
 
     /**
@@ -108,6 +113,15 @@ public class KarelMap {
             }
         }
         rock = newRock;
+    }
+
+    /**
+     * change the states when a rock is put to level a trap
+     *
+     * @param loc the coordinate of the rock put
+     */
+    public void rockPut(int[] loc) {
+        setSite(loc, Site.TRAPLEVELED);
     }
 
     /**
@@ -140,7 +154,7 @@ public class KarelMap {
 
     //test
     public static void main(String[] args) {
-        KarelMap m = new KarelMap(10, 5, null, null);
+        KarelMap m = new KarelMap(10, 5, null, null, null);
         System.out.println(m.width);
         int[] loc = new int[]{2, 0};
         m.setSite(loc, Site.KAREL);

@@ -23,6 +23,9 @@ public class KarelInteraction {
             case 2:
                 director.stage2(builder);
                 break;
+            case 3:
+                director.stage3(builder);
+                break;
         }
         rob = builder.buildRobot();
     }
@@ -45,6 +48,12 @@ public class KarelInteraction {
                 break;
             case ROCK:
                 icon = "●";
+                break;
+            case TRAP:
+                icon = "⊙";
+                break;
+            case TRAPLEVELED:
+                icon = "×";
                 break;
             case KAREL:
                 switch (currentDir) {
@@ -123,7 +132,7 @@ public class KarelInteraction {
     public void gameLoop() {
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
 
-        while (rob.map.numMapRock() != 0) {
+        while (rob.map.numMapRock() != 0 && !rob.dead) {
             drawMap();
             String input = scanner.nextLine();
 
@@ -137,6 +146,10 @@ public class KarelInteraction {
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
+        }
+        if (rob.dead) {
+            drawMap();
+            System.out.println("The robot is dead. Game over...");
         }
         if (rob.map.numMapRock() == 0) System.out.println("There is no rock on the map. You win!");
     }
@@ -188,6 +201,8 @@ public class KarelInteraction {
                             game = new KarelInteraction(2);
                             break;
                         case "STAGE3":
+                            game = new KarelInteraction(3);
+                            break;
                         case "NEW MAP":
                             System.out.println("Not implemented yet. Choose another stage please.");
                             break;
