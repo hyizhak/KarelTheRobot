@@ -5,7 +5,7 @@ public class KarelRobot {
     public int[] loc;
     public int ori;
     public int bagRock = 0;
-    public boolean dead = false;
+    public boolean trapped = false;
     public KarelMap map;
 
     public enum Direction {
@@ -63,7 +63,7 @@ public class KarelRobot {
         }
         if (map.getType(nextLoc) == KarelMap.Site.TRAP.typeValue) {
             map.setSite(loc, KarelMap.Site.GROUND);
-            dead = true;
+            trapped = true;
         } else {
             map.setSite(loc, KarelMap.Site.GROUND);
             loc = nextLoc;
@@ -93,9 +93,9 @@ public class KarelRobot {
     }
 
     public void turnRight() {
-        turnLeft();
-        turnLeft();
-        turnLeft();
+        for (int i = 0; i < 3; i++) {
+            turnLeft();
+        }
     }
 
     /**
@@ -143,11 +143,17 @@ public class KarelRobot {
         return flag;
     }
 
+    /**
+     * check if there is no rock in front of the robot
+     *
+     * @return true if there is no rock in front of the robot
+     */
     public boolean noRockPresent() {
         int[] nextLoc = nextSite();
-        boolean flag = map.getType(nextLoc) != KarelMap.Site.ROCK.typeValue;
-        System.out.println(flag);
-        return flag;
+        boolean flag = map.getType(nextLoc) == KarelMap.Site.ROCK.typeValue ||
+                map.getType(nextLoc) == KarelMap.Site.TRAPLEVELED.typeValue;
+        System.out.println(!flag);
+        return !flag;
     }
 
     /**

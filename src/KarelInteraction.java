@@ -132,7 +132,7 @@ public class KarelInteraction {
     public void gameLoop() {
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
 
-        while (rob.map.numMapRock() != 0 && !rob.dead) {
+        while (rob.map.numMapRock() != 0 && !rob.trapped) {
             drawMap();
             String input = scanner.nextLine();
 
@@ -147,9 +147,9 @@ public class KarelInteraction {
                 System.out.println("Error: " + e.getMessage());
             }
         }
-        if (rob.dead) {
+        if (rob.trapped) {
             drawMap();
-            System.out.println("The robot is dead. Game over...");
+            System.out.println("The robot is trapped. Game over...");
         }
         if (rob.map.numMapRock() == 0) System.out.println("There is no rock on the map. You win!");
     }
