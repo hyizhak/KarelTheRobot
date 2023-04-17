@@ -7,6 +7,7 @@ public class KarelInteraction {
     private KarelRobot rob;
     private static final String QUIT_PROMPT = "You can use 'Q' to quit the game";
     private static final String GOODBYE = "See you next time.";
+    public static Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
 
     /**
      * construct the game
@@ -128,41 +129,38 @@ public class KarelInteraction {
 
     public static KarelInteraction opening() {
         KarelInteraction game = null;
-        try (Scanner opscanner = new Scanner(System.in, StandardCharsets.UTF_8)) {
-            //opening stage
-            while (true) {
-                drawOp();
-                String input = opscanner.nextLine();
+        while (true) {
+            drawOp();
+            String input = scanner.nextLine();
 
-                if (input.equalsIgnoreCase("Q")) {
-                    System.out.println(GOODBYE);
-                    break;
-                }
+            if (input.equalsIgnoreCase("Q")) {
+                System.out.println(GOODBYE);
+                break;
+            }
 
-                try {
-                    switch (input) {
-                        case "STAGE1":
-                            game = new KarelInteraction(1);
-                            break;
-                        case "STAGE2":
-                            game = new KarelInteraction(2);
-                            break;
-                        case "STAGE3":
-                            game = new KarelInteraction(3);
-                            break;
-                        case "NEW MAP":
-                            System.out.println("Not implemented yet. Choose another stage please.");
-                            break;
-                        default:
-                            System.out.println("Choose a stage or create a new map bitte");
-                            break;
-                    }
-                } catch (Exception e) {
-                    System.out.println("Error: " + e.getMessage());
+            try {
+                switch (input) {
+                    case "STAGE1":
+                        game = new KarelInteraction(1);
+                        break;
+                    case "STAGE2":
+                        game = new KarelInteraction(2);
+                        break;
+                    case "STAGE3":
+                        game = new KarelInteraction(3);
+                        break;
+                    case "NEW MAP":
+                        System.out.println("Not implemented yet. Choose another stage please.");
+                        break;
+                    default:
+                        System.out.println("Choose a stage or create a new map bitte");
+                        break;
                 }
-                if (game != null) {
-                    break;
-                }
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+            if (game != null) {
+                break;
             }
         }
         return game;
@@ -172,30 +170,28 @@ public class KarelInteraction {
      * waiting for prompt for the robot, the main game loop
      */
     public void gameLoop() {
-        try (Scanner gamescanner = new Scanner(System.in, StandardCharsets.UTF_8)) {
+        while (rob.map.numMapRock() != 0 && !rob.trapped) {
+            drawMap();
 
-            while (rob.map.numMapRock() != 0 && !rob.trapped) {
-                drawMap();
+            String input = scanner.nextLine();
 
-                String input = gamescanner.nextLine();
-
-                if (input.equalsIgnoreCase("Q")) {
-                    System.out.println(GOODBYE);
-                    break;
-                }
-
-                try {
-                    invokeRobotMethod(input);
-                } catch (Exception e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
+            if (input.equalsIgnoreCase("Q")) {
+                System.out.println(GOODBYE);
+                break;
             }
-            if (rob.trapped) {
-                drawMap();
-                System.out.println("The robot is trapped. Game over...");
+
+            try {
+                invokeRobotMethod(input);
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
             }
-            if (rob.map.numMapRock() == 0) System.out.println("There is no rock on the map. You win!");
         }
+        if (rob.trapped) {
+            drawMap();
+            System.out.println("The robot is trapped. Game over...");
+        }
+        if (rob.map.numMapRock() == 0) System.out.println("There is no rock on the map. You win!");
+
     }
 
     /**
