@@ -126,66 +126,13 @@ public class KarelInteraction {
                 + divSpace + "\n" + stageChoose + "\n" + divSpace + "\n" + outerBox + "\n" + QUIT_PROMPT + "\n");
     }
 
-    /**
-     * waiting for prompt for the robot, the main game loop
-     */
-    public void gameLoop() {
-        Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
-
-        while (rob.map.numMapRock() != 0 && !rob.trapped) {
-            drawMap();
-            String input = scanner.nextLine();
-
-            if (input.equalsIgnoreCase("Q")) {
-                System.out.println(GOODBYE);
-                break;
-            }
-
-            try {
-                invokeRobotMethod(input);
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-            }
-        }
-        if (rob.trapped) {
-            drawMap();
-            System.out.println("The robot is trapped. Game over...");
-        }
-        if (rob.map.numMapRock() == 0) System.out.println("There is no rock on the map. You win!");
-    }
-
-    /**
-     * map the input to the robot method with the same name
-     *
-     * @param input the input string
-     */
-    private void invokeRobotMethod(String input) {
-        SingleEval evaledInput = new SingleEval(input);
-
-        try {
-            if (!evaledInput.hasArg()) {
-                Method method = KarelRobot.class.getDeclaredMethod(evaledInput.getMethod());
-                method.invoke(rob);
-            } else {
-                Method method = KarelRobot.class.getDeclaredMethod(
-                        evaledInput.getMethod(), evaledInput.getArgType());
-                method.invoke(rob, evaledInput.getArgValue());
-            }
-        } catch (NoSuchMethodException e) {
-            System.out.println("Error: Not supported the command '" + input + "'");
-        } catch (Exception e) {
-            Throwable cause = e.getCause();
-            System.out.println("Error: " + cause.getMessage());
-        }
-    }
-
-    public static void main(String[] args) {
-        try (Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8)) {
-            KarelInteraction game = null;
+    public static KarelInteraction opening() {
+        KarelInteraction game = null;
+        try (Scanner opscanner = new Scanner(System.in, StandardCharsets.UTF_8)) {
             //opening stage
             while (true) {
                 drawOp();
-                String input = scanner.nextLine();
+                String input = opscanner.nextLine();
 
                 if (input.equalsIgnoreCase("Q")) {
                     System.out.println(GOODBYE);
@@ -217,12 +164,72 @@ public class KarelInteraction {
                     break;
                 }
             }
+        }
+        return game;
+    }
 
-            if (game == null) {
-                return;
-            } else {
-                game.gameLoop();
+    /**
+     * waiting for prompt for the robot, the main game loop
+     */
+    public void gameLoop() {
+        try (Scanner gamescanner = new Scanner(System.in, StandardCharsets.UTF_8)) {
+
+            while (rob.map.numMapRock() != 0 && !rob.trapped) {
+                drawMap();
+
+                String input = gamescanner.nextLine();
+
+                if (input.equalsIgnoreCase("Q")) {
+                    System.out.println(GOODBYE);
+                    break;
+                }
+
+                try {
+                    invokeRobotMethod(input);
+                } catch (Exception e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
             }
+            if (rob.trapped) {
+                drawMap();
+                System.out.println("The robot is trapped. Game over...");
+            }
+            if (rob.map.numMapRock() == 0) System.out.println("There is no rock on the map. You win!");
+        }
+    }
+
+    /**
+     * map the input to the robot method with the same name
+     *
+     * @param input the input string
+     */
+    private void invokeRobotMethod(String input) {
+        SingleEval evaledInput = new SingleEval(input);
+
+        try {
+            if (!evaledInput.hasArg()) {
+                Method method = KarelRobot.class.getDeclaredMethod(evaledInput.getMethod());
+                method.invoke(rob);
+            } else {
+                Method method = KarelRobot.class.getDeclaredMethod(
+                        evaledInput.getMethod(), evaledInput.getArgType());
+                method.invoke(rob, evaledInput.getArgValue());
+            }
+        } catch (NoSuchMethodException e) {
+            System.out.println("Error: Not supported the command '" + input + "'");
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            System.out.println("Error: " + cause.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        KarelInteraction game = opening();
+
+        if (game == null) {
+            return;
+        } else {
+            game.gameLoop();
         }
     }
 }
