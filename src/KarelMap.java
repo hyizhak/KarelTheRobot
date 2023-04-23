@@ -40,6 +40,21 @@ public class KarelMap {
         if (trap != null) setSites(trap, Site.TRAP);
     }
 
+    public KarelMap(int[] map, int width, int height, int[][] rock) {
+        this.map = map;
+        this.width = width;
+        this.height = height;
+        this.rock = rock;
+    }
+
+    public KarelMap mapClone() {
+        int[] mapClone = new int[map.length];
+        int[][] rockClone = new int[rock.length][2];
+        System.arraycopy(map, 0, mapClone, 0, map.length);
+        System.arraycopy(rock, 0, rockClone, 0, rock.length);
+        return new KarelMap(mapClone, width, height, rockClone);
+    }
+
     /**
      * get the index from a set of row and col, both starting from 0, helper function
      *
@@ -48,7 +63,7 @@ public class KarelMap {
     public int index(int[] loc) {
         return loc[0] * width + loc[1];
     }
-
+    
     /**
      * get the site type
      *

@@ -1,13 +1,14 @@
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class KarelInteraction {
 
     private KarelRobot rob;
+    private KarelRobot clonedRobot;
     private static final String QUIT_PROMPT = "You can use 'Q' to quit the game";
     private static final String GOODBYE = "See you next time.";
-    public static Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
+    public static final Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
+
 
     /**
      * construct the game
@@ -27,8 +28,17 @@ public class KarelInteraction {
             case 3:
                 director.stage3(builder);
                 break;
+            case 4:
+                director.newMap(builder);
+                break;
         }
         rob = builder.buildRobot();
+        clonedRobot = rob.clone();
+    }
+
+    public KarelInteraction(KarelRobot rob) {
+        this.rob = rob;
+        clonedRobot = rob.clone();
     }
 
     /**
@@ -150,7 +160,7 @@ public class KarelInteraction {
                         game = new KarelInteraction(3);
                         break;
                     case "NEW MAP":
-                        System.out.println("Not implemented yet. Choose another stage please.");
+                        game = new KarelInteraction(4);
                         break;
                     default:
                         System.out.println("Choose a stage or create a new map bitte");
@@ -192,6 +202,20 @@ public class KarelInteraction {
         }
         if (rob.map.numMapRock() == 0) System.out.println("There is no rock on the map. You win!");
 
+        System.out.println("Do you want to restart the stage? (y/N)");
+        String input = scanner.nextLine();
+        if (input.equalsIgnoreCase("Y")) {
+            KarelInteraction newgame = new KarelInteraction(this.clonedRobot);
+            newgame.gameLoop();
+        } else {
+            KarelInteraction game = opening();
+
+            if (game == null) {
+                return;
+            } else {
+                game.gameLoop();
+            }
+        }
     }
 
     /**
@@ -200,22 +224,13 @@ public class KarelInteraction {
      * @param input the input string
      */
     private void invokeRobotMethod(String input) {
-        SingleEval evaledInput = new SingleEval(input);
-
-        try {
-            if (!evaledInput.hasArg()) {
-                Method method = KarelRobot.class.getDeclaredMethod(evaledInput.getMethod());
-                method.invoke(rob);
-            } else {
-                Method method = KarelRobot.class.getDeclaredMethod(
-                        evaledInput.getMethod(), evaledInput.getArgType());
-                method.invoke(rob, evaledInput.getArgValue());
-            }
-        } catch (NoSuchMethodException e) {
-            System.out.println("Error: Not supported the command '" + input + "'");
-        } catch (Exception e) {
-            Throwable cause = e.getCause();
-            System.out.println("Error: " + cause.getMessage());
+        CompoundEval evaledInput = new CompoundEval(input);
+        if (evaledInput.isSingle) {
+            evaledInput.single.invoke(rob);
+        } else if (evaledInput.prefix.equals("if")) {
+            evaledInput.ifInvoke(rob);
+        } else {
+            evaledInput.funcInvoke(rob);
         }
     }
 

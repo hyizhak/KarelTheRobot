@@ -1,12 +1,18 @@
 import java.util.Arrays;
 
-public class KarelRobot {
+public class KarelRobot implements Cloneable {
 
     public int[] loc;
     public int ori;
     public int bagRock = 0;
     public boolean trapped = false;
     public KarelMap map;
+    public String customFuncName;
+    public String[] customFuncBody;
+
+    public KarelRobot clone() {
+        return new KarelRobot(map.mapClone(), loc, Direction.intToDir(ori));
+    }
 
     public enum Direction {
         RIGHT, UP, LEFT, DOWN;
@@ -52,6 +58,13 @@ public class KarelRobot {
         return nextLoc;
     }
 
+    public void customFunc() {
+        for (String method : customFuncBody) {
+            CompoundEval eval = new CompoundEval(method);
+            eval.single.invoke(this);
+        }
+    }
+
     /**
      * move the robot one step forward
      */
@@ -91,13 +104,7 @@ public class KarelRobot {
             ori = 0;
         }
     }
-
-    public void turnRight() {
-        for (int i = 0; i < 3; i++) {
-            turnLeft();
-        }
-    }
-
+    
     /**
      * pick the stone in front of the robot
      */
@@ -139,7 +146,7 @@ public class KarelRobot {
      */
     public boolean noRockInBag() {
         boolean flag = bagRock == 0;
-        System.out.println(flag);
+        System.out.println("no rock in bag: " + flag);
         return flag;
     }
 
@@ -152,7 +159,7 @@ public class KarelRobot {
         int[] nextLoc = nextSite();
         boolean flag = map.getType(nextLoc) == KarelMap.Site.ROCK.typeValue ||
                 map.getType(nextLoc) == KarelMap.Site.TRAPLEVELED.typeValue;
-        System.out.println(!flag);
+        System.out.println("no rock present: " + !flag);
         return !flag;
     }
 

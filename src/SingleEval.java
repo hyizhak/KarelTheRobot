@@ -1,7 +1,10 @@
+import java.lang.reflect.Method;
+
 public class SingleEval {
 
-    private String methodName, argValue;
+    private String methodName, argValue, input;
     private Class<?> argType;
+    public Object result;
 
     /**
      * parse the input string to get the method name, argument type and value
@@ -9,6 +12,7 @@ public class SingleEval {
      * @param input the input string
      */
     public SingleEval(String input) {
+        this.input = input;
         String[] parts = input.split("\\(");
         methodName = parts[0];
         //parts.lenth > 1 means there are arguments and
@@ -105,6 +109,28 @@ public class SingleEval {
             return argValue;
         }
         return null;
+    }
+
+    public void invoke(KarelRobot rob) {
+        if (getMethod().equals(rob.customFuncName)) {
+            rob.customFunc();
+        } else {
+            try {
+                if (!hasArg()) {
+                    Method method = KarelRobot.class.getDeclaredMethod(getMethod());
+                    result = method.invoke(rob);
+                } else {
+                    Method method = KarelRobot.class.getDeclaredMethod(
+                            getMethod(), getArgType());
+                    result = method.invoke(rob, getArgValue());
+                }
+            } catch (NoSuchMethodException e) {
+                System.out.println("Error: Not supported the command '" + input + "'");
+            } catch (Exception e) {
+                Throwable cause = e.getCause();
+                System.out.println("Error: " + cause.getMessage());
+            }
+        }
     }
 
     public static void main(String[] args) throws ClassNotFoundException {
