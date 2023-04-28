@@ -10,9 +10,6 @@ public class KarelRobot implements Cloneable {
     public String customFuncName;
     public String[] customFuncBody;
 
-    public KarelRobot clone() {
-        return new KarelRobot(map.mapClone(), loc, Direction.intToDir(ori));
-    }
 
     public enum Direction {
         RIGHT, UP, LEFT, DOWN;
@@ -31,6 +28,17 @@ public class KarelRobot implements Cloneable {
         this.loc = loc;
         this.ori = ori.ordinal();
         this.map.setSite(this.loc, KarelMap.Site.KAREL);
+    }
+
+    public void customFunc() {
+        for (String method : customFuncBody) {
+            CompoundEval eval = new CompoundEval(method.trim());
+            eval.single.invoke(this);
+        }
+    }
+
+    public KarelRobot clone() {
+        return new KarelRobot(map.mapClone(), loc, Direction.intToDir(ori));
     }
 
     /**
@@ -58,12 +66,6 @@ public class KarelRobot implements Cloneable {
         return nextLoc;
     }
 
-    public void customFunc() {
-        for (String method : customFuncBody) {
-            CompoundEval eval = new CompoundEval(method);
-            eval.single.invoke(this);
-        }
-    }
 
     /**
      * move the robot one step forward
@@ -104,7 +106,7 @@ public class KarelRobot implements Cloneable {
             ori = 0;
         }
     }
-    
+
     /**
      * pick the stone in front of the robot
      */

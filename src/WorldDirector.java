@@ -35,7 +35,7 @@ public class WorldDirector {
     }
 
     public void newMap(WorldBuilder builder) {
-        System.out.println("Welcome to the Karel Map Builder! Type ? for help and E to exit.");
+        System.out.println("Welcome to the Karel Map Builder! Type ? for help or E to exit.");
         while (true) {
             String input = KarelInteraction.scanner.nextLine();
 
@@ -44,7 +44,7 @@ public class WorldDirector {
                     System.out.println("New Map Set.");
                     break;
                 } else {
-                    System.out.println("Map not fully set yet. Please set all fields.");
+                    System.out.println("Map not fully set yet. Please set all compulsory fields.");
                     continue;
                 }
             }
@@ -94,7 +94,7 @@ public class WorldDirector {
                         builder.setRobotDir(robotDir);
                         break;
                     default:
-                        System.out.println("Type ? for help.");
+                        System.out.println("Type ? for help or E to exit.");
                 }
             } catch (Exception e) {
                 System.out.println("Invalid input.");

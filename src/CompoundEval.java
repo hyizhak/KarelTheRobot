@@ -28,8 +28,8 @@ public class CompoundEval {
                     matches[i] = s;
                     i++;
                 }
-                ifTrue = matches[0];
-                ifFalse = matches[1];
+                ifTrue = matches[0].replace(";", "");
+                ifFalse = matches[1].replace(";", "");
             } else {
                 funcName = prefix;
                 matcher.find();
