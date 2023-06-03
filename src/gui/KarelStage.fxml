@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane fx:id="parentPane" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gui.KarelStageController">
+    <top>
+        <MenuBar>
+            <Menu text="File">
+                <MenuItem fx:id="switchbutton" onAction="#switchLevel" text="Switch Level (Ctrl + Shift+ S)"/>
+                <MenuItem onAction="#saveGame" text="Save Game (Ctrl + S)"/>
+                <MenuItem fx:id="helpbutton" onAction="#gameHelp" text="Game Help (Ctrl + H)"/>
+            </Menu>
+            <Menu fx:id="loadMenu" text="Load">
+            </Menu>
+        </MenuBar>
+    </top>
+    <left>
+        <VBox>
+            <Label text="Code Input"/>
+            <TextArea fx:id="codeArea"/>
+            <Label text="Error Messages"/>
+            <TextArea fx:id="errorMessagesArea" editable="false"/>
+            <HBox alignment="CENTER" spacing="20">
+                <Button fx:id="exitButton" onAction="#exitLevel" text="Exit Level (Ctrl + Q)"/>
+                <Button onAction="#runCode" text="Run Code (Ctrl + Enter)"/>
+            </HBox>
+        </VBox>
+    </left>
+
+    <right>
+        <VBox>
+            <GridPane fx:id="mapGrid"/>
+            <Label text="Logs"/>
+            <TextArea fx:id="logsArea" editable="false"/>
+        </VBox>
+    </right>
+</BorderPane>
