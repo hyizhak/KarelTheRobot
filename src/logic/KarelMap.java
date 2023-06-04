@@ -1,6 +1,7 @@
 package logic;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class KarelMap implements Serializable {
@@ -48,6 +49,20 @@ public class KarelMap implements Serializable {
         this.width = width;
         this.height = height;
         this.rock = rock;
+    }
+
+    public KarelMap(int[][] mapGrid) {
+        this.width = mapGrid[0].length;
+        this.height = mapGrid.length;
+        this.map = new int[width * height];
+        ArrayList<int[]> rock = new ArrayList<>();
+        for (int i = 0; i < map.length; i++) {
+            map[i] = mapGrid[i / width][i % width];
+            if (map[i] == Site.ROCK.typeValue) {
+                rock.add(new int[]{i / width, i % width});
+            }
+        }
+        this.rock = rock.toArray(new int[rock.size()][]);
     }
 
     public KarelMap mapClone() {

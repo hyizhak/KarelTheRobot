@@ -33,6 +33,19 @@ public class KarelRobot implements Cloneable, Serializable {
         this.map.setSite(this.loc, KarelMap.Site.KAREL);
     }
 
+    public KarelRobot(KarelMap map) {
+        this.map = map;
+        for (int i = 0; i < map.height; i++) {
+            for (int j = 0; j < map.width; j++) {
+                int[] loc = new int[]{i, j};
+                if (map.map[map.index(loc)] == 1) {
+                    this.loc = loc;
+                    this.ori = 0;
+                }
+            }
+        }
+    }
+
     public void customFunc() {
         for (String method : customFuncBody) {
             CompoundEval eval = new CompoundEval(method.trim());

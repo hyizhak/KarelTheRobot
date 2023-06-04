@@ -37,6 +37,7 @@ public class KarelStageController implements Initializable {
     public Menu loadMenu;
     public MenuItem switchbutton;
     public MenuItem helpbutton;
+    public MenuItem restartbutton;
     @FXML
     private TextArea codeArea;
     @FXML
@@ -48,8 +49,10 @@ public class KarelStageController implements Initializable {
     @FXML
     private Button exitButton;
 
+
     private ImageView[][] imageViewGrid;
     private KarelRobot rob;
+    private KarelRobot clonedRobot;
     private int stageNo;
     private int gameState;
     private int count;
@@ -225,6 +228,84 @@ public class KarelStageController implements Initializable {
         mediaPlayer.play();
     }
 
+    public void setupCustomStage(int stageNo) {
+        this.stageNo = stageNo;
+
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+        }
+
+        try {
+            FileInputStream fileInputStream = new FileInputStream("customstage/stage" + stageNo + ".ser");
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            KarelRobot deserializedKarelRobot = (KarelRobot) objectInputStream.readObject();
+            objectInputStream.close();
+            fileInputStream.close();
+            rob = deserializedKarelRobot;
+            clonedRobot = rob.clone();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            System.out.println("Class not found");
+            throw new RuntimeException(e);
+        }
+
+        mapGrid.getChildren().clear();
+
+        imageViewGrid = new ImageView[rob.map.height][rob.map.width];
+        double size = Math.min(1280 * 0.5 / rob.map.width, 720 * 0.65 / rob.map.height);
+        for (int i = 0; i < rob.map.height; i++) {
+            for (int j = 0; j < rob.map.width; j++) {
+                imageViewGrid[i][j] = new ImageView();
+                imageViewGrid[i][j].setFitWidth(size);
+                imageViewGrid[i][j].setFitHeight(size);
+                // Note that GridPane uses column-major order
+                mapGrid.add(imageViewGrid[i][j], j, i);
+            }
+        }
+
+        String saveDir = "save";
+        String fileName = "stage" + stageNo + ".ser";
+        Path filePath = Paths.get(saveDir, fileName);
+
+        if (Files.exists(filePath)) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Would you like to load the existent save?",
+                    ButtonType.YES, ButtonType.NO);
+            alert.setHeaderText(null);
+            alert.showAndWait();
+
+            if (alert.getResult() == ButtonType.YES) {
+                loadGame(fileName);
+            }
+        }
+
+        updateImages(rob.map.map);
+
+        mediaPlayer = normalBGMPlayer;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(gameStageLogs))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data[0].equals(String.valueOf(stageNo)) && data.length > 1) {
+                    switch (data[1]) {
+                        case "1":
+                            mediaPlayer = winBGMPlayer;
+                            break;
+                        case "-1":
+                            mediaPlayer = loseBGMPlayer;
+                            break;
+                    }
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        mediaPlayer.play();
+    }
+
     public void setStageList(ObservableList<String> stageList) {
         this.stageList = stageList;
     }
@@ -370,11 +451,14 @@ public class KarelStageController implements Initializable {
             case 3:
                 director.stage3(builder);
                 break;
-            case 4:
-                director.newMap(builder);
-                break;
         }
         rob = builder.buildRobot();
+        clonedRobot = rob.clone();
+    }
+
+    private void initStage(KarelRobot rob) {
+        this.rob = rob;
+        clonedRobot = rob.clone();
     }
 
     private void updateImages(int[] grid) {
@@ -446,6 +530,7 @@ public class KarelStageController implements Initializable {
         KeyCodeCombination ctrlQCombination = new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN);
         KeyCodeCombination ctrlHCombination = new KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN);
         KeyCodeCombination ctrlshiftSCombination = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        KeyCodeCombination F5Combination = new KeyCodeCombination(KeyCode.F5);
         // Handle key pressed event for inputArea namely run code when Ctrl+Enter is pressed
         codeArea.setOnKeyPressed(event -> {
             if (ctrlEnterCombination.match(event)) {
@@ -470,6 +555,11 @@ public class KarelStageController implements Initializable {
             //shortcut for switching stages: Ctrl+Shift+S
             if (ctrlshiftSCombination.match(event)) {
                 switchbutton.fire();
+                event.consume();
+            }
+            //shortcut for restarting the game: F5
+            if (F5Combination.match(event)) {
+                restartbutton.fire();
                 event.consume();
             }
         });
@@ -519,7 +609,7 @@ public class KarelStageController implements Initializable {
             endingPlayer.stop();
             if (result.isPresent() && result.get() == buttonTypeYes) {
                 // user chose YES
-                initStage(stageNo);
+                initStage(clonedRobot);
                 codeArea.clear();
                 logsArea.clear();
                 errorMessagesArea.clear();
@@ -554,8 +644,8 @@ public class KarelStageController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("StartScreen.fxml"));
             Parent root = loader.load();
-//            StartScreenController controller = loader.getController();
-//            controller.setStageComboBox();
+            StartScreenController controller = loader.getController();
+            controller.setStageList(stageList);
 
             // Get the source of the event, cast it to a Node
             Node source = (Node) actionEvent.getSource();
@@ -614,7 +704,19 @@ public class KarelStageController implements Initializable {
         showHelp();
     }
 
+    @FXML
+    protected void gameRestart(ActionEvent actionEvent) {
+        initStage(clonedRobot);
+        codeArea.clear();
+        logsArea.clear();
+        errorMessagesArea.clear();
+        updateImages(rob.map.map);
+        System.out.println("Restarted");
+    }
+
     public static void main(String[] args) {
 
     }
+
+
 }

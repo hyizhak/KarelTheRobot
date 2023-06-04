@@ -10,6 +10,7 @@
                 <MenuItem fx:id="switchbutton" onAction="#switchLevel" text="Switch Level (Ctrl + Shift+ S)"/>
                 <MenuItem onAction="#saveGame" text="Save Game (Ctrl + S)"/>
                 <MenuItem fx:id="helpbutton" onAction="#gameHelp" text="Game Help (Ctrl + H)"/>
+                <MenuItem fx:id="restartbutton" onAction="#gameRestart" text="Restart Game (F5)"/>
             </Menu>
             <Menu fx:id="loadMenu" text="Load">
             </Menu>
