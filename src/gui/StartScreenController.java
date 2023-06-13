@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -31,13 +32,9 @@ public class StartScreenController {
     @FXML
     private VBox menuBox;
     @FXML
-    private Button newMapButton;
-    @FXML
     private ComboBox<String> stageComboBox;
     @FXML
     private ObservableList<String> stageList;
-    @FXML
-    private Button selectStageButton;
 
     private MediaPlayer openingPlayer;
     private int stageNo;
@@ -49,6 +46,16 @@ public class StartScreenController {
         menuBox.prefWidthProperty().bind(parentPane.widthProperty().multiply(0.3));
         menuBox.prefHeightProperty().bind(parentPane.heightProperty().multiply(0.3));
 
+        String csvFile = gameStageLogs;
+
+        File file = new File(csvFile);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         File dir = Paths.get("customstage").toFile();
         int maxStageNumber = 3;
@@ -116,25 +123,28 @@ public class StartScreenController {
         result.ifPresent(widthHeight -> {
             System.out.println("Width=" + widthHeight.getKey() + ", Height=" + widthHeight.getValue());
             int[][] mapGrid = createMap(widthHeight);
-            KarelMap map = new KarelMap(mapGrid);
-            KarelRobot rob = new KarelRobot(map);
-            stageNo++;
-            try {
-                FileOutputStream fileOutputStream = new FileOutputStream("customstage/stage" + stageNo +
-                        ".ser");
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-                objectOutputStream.writeObject(rob);
-                objectOutputStream.close();
-                fileOutputStream.close();
-                System.out.println("Custom Stage " + stageNo + " has been saved.");
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(gameStageLogs, true))) {
-                    writer.write(String.valueOf(stageNo));
-                    writer.newLine();
+            if (mapGrid != null) {
+                KarelMap map = new KarelMap(mapGrid);
+                KarelRobot rob = new KarelRobot(map);
+                stageNo++;
+                try {
+                    FileOutputStream fileOutputStream = new FileOutputStream("customstage/stage" + stageNo +
+                            ".ser");
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+                    objectOutputStream.writeObject(rob);
+                    objectOutputStream.close();
+                    fileOutputStream.close();
+                    System.out.println("Custom Stage " + stageNo + " has been saved.");
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(gameStageLogs, true))) {
+                        writer.write(String.valueOf(stageNo));
+                        writer.newLine();
+                        setStageComboBox();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         });
         setStageComboBox();
@@ -152,6 +162,8 @@ public class StartScreenController {
 
         ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
+
+        dialog.getDialogPane().lookupButton(okButtonType).setDisable(true);
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -242,15 +254,6 @@ public class StartScreenController {
 
         String csvFile = gameStageLogs;
 
-        File file = new File(csvFile);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
         String line;
         String csvSplitBy = ",";
 
@@ -315,6 +318,7 @@ public class StartScreenController {
 
             // Now you have the stage and can use it
             stage.setScene(new Scene(root, 1280, 720));
+            stage.getIcons().add(new Image(getClass().getResource("/image/icon.png").toExternalForm()));
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();

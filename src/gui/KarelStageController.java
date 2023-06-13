@@ -566,7 +566,7 @@ public class KarelStageController implements Initializable {
     }
 
     @FXML
-    protected void runCode(ActionEvent actionEvent) {
+    private void runCode(ActionEvent actionEvent) {
         String code = codeArea.getText();
         ParaEval codePage = new ParaEval(code);
         try {
@@ -623,7 +623,7 @@ public class KarelStageController implements Initializable {
     }
 
     @FXML
-    protected void exitLevel(ActionEvent actionEvent) {
+    private void exitLevel(ActionEvent actionEvent) {
         mediaPlayer.stop();
 
         String saveDir = "save";
@@ -658,6 +658,7 @@ public class KarelStageController implements Initializable {
 
             // Now you have the stage and can use it
             stage.setScene(new Scene(root, 1280, 720));
+            stage.getIcons().add(new Image(getClass().getResource("/image/icon.png").toExternalForm()));
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -665,7 +666,7 @@ public class KarelStageController implements Initializable {
     }
 
     @FXML
-    protected void switchLevel(ActionEvent actionEvent) {
+    private void switchLevel(ActionEvent actionEvent) {
         String saveDir = "save";
         String fileName = "stage" + stageNo + ".ser";
         Path filePath = Paths.get(saveDir, fileName);
@@ -690,22 +691,26 @@ public class KarelStageController implements Initializable {
         result.ifPresent(stage -> {
             int endIndex = stage.indexOf("(", 6);
             int stageNo = Integer.parseInt(stage.substring(6, endIndex).trim());
-            setup(stageNo);
+            if (stageNo <= 3) {
+                setup(stageNo);
+            } else {
+                setupCustomStage(stageNo);
+            }
         });
     }
 
     @FXML
-    protected void saveGame(ActionEvent actionEvent) {
+    private void saveGame(ActionEvent actionEvent) {
         saveGame();
     }
 
     @FXML
-    protected void gameHelp(ActionEvent actionEvent) {
+    private void gameHelp(ActionEvent actionEvent) {
         showHelp();
     }
 
     @FXML
-    protected void gameRestart(ActionEvent actionEvent) {
+    private void gameRestart(ActionEvent actionEvent) {
         initStage(clonedRobot);
         codeArea.clear();
         logsArea.clear();
